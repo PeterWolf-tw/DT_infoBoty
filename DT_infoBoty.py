@@ -19,7 +19,7 @@ class BotClient(discord.Client):
         if message.author == self.user:
             return None
 
-        print("到到來自 {} 的訊息".format(message.author))
+        print("收到來自 {} 的訊息".format(message.author))
         print("訊息內容是 {}。".format(message.content))
         if self.user.mentioned_in(message):
             print("本 bot 被叫到了！")
