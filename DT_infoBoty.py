@@ -23,9 +23,9 @@ class BotClient(discord.Client):
             print("本 bot 被叫到了！")
             msg = message.content.replace("<@!{}> ".format(self.user.id), "")
             if msg == 'ping':
-                await message.channel.send('pong')
+                await message.reply('pong')
             if msg == 'ping ping':
-                await message.channel.send('pong pong')
+                await message.reply('pong pong')
 
 if __name__ == "__main__":
     client = BotClient()
