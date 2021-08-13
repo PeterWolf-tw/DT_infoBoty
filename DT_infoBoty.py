@@ -4,6 +4,8 @@
 import discord
 import json
 
+from ChingShin_Drink import runLoki
+
 with open("account.info", encoding="utf-8") as f:
     accountDICT = json.loads(f.read())
 
@@ -24,8 +26,39 @@ class BotClient(discord.Client):
             msg = message.content.replace("<@!{}> ".format(self.user.id), "")
             if msg == 'ping':
                 await message.reply('pong')
-            if msg == 'ping ping':
+            elif msg == 'ping ping':
                 await message.reply('pong pong')
+            else:
+                #從這裡開始接上 NLU 模型
+                responseSTR = "我是預設的回應字串…你會看到我這串字，肯定是出了什麼錯！"
+                inputLIST = [msg]
+                filterLIST = []
+                resultDICT = runLoki(inputLIST, filterLIST)
+                print("Result => {}".format(resultDICT))
+
+                if "sugar" not in resultDICT:
+                    resultDICT["sugar"] = "預設正常甜"
+
+                if "ice" in resultDICT and "temperature" in resultDICT:
+                    responseSTR = "hello \n您點的總共是：{} X {} ({}) \n 不好意思，沒有辦法做又冰又熱，請重新選擇溫度或冰塊".format(resultDICT["item"], resultDICT["amount"], resultDICT["sugar"])
+
+                if "ice" not in resultDICT and "temperature" not in resultDICT:
+                    resultDICT["ice"] = "預設正常冰"
+
+                if "ice" in resultDICT and "temperature" not in resultDICT:
+                    responseSTR = "hello~ \n您點的總共是：\n"
+                    for k in range(0,len(resultDICT["amount"])):
+                        responseSTR = responseSTR + "{} X {} ({}、{})\n".format(resultDICT["item"][k],resultDICT["amount"][k],resultDICT["sugar"],resultDICT["ice"])
+                    responseSTR = responseSTR + "謝謝您的訂購\n"
+
+                if "temperature" in resultDICT and "ice" not in resultDICT:
+                    responseSTR = "hello~~ \n您點的總共是：\n"
+                    for k in range(0,len(resultDICT["amount"])):
+                        responseSTR = responseSTR + "{} X {} ({}、{})\n".format(resultDICT["item"][k],resultDICT["amount"][k],resultDICT["sugar"],resultDICT["temperature"][0])
+                    responseSTR = responseSTR + "謝謝您的訂購\n"
+
+                await message.reply(responseSTR)
+
 
 if __name__ == "__main__":
     client = BotClient()
